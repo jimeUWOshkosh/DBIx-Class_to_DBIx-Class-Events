@@ -14,6 +14,7 @@ exit
 As developer user
    In you development directory
    $ mkdir dbicapp
+   $ cd dbicapp
    $ tar /tmp/stuff.tar
    $ rm db/example.db
    $ sqlite3 db/example.db < db/example.sql
