@@ -1,0 +1,94 @@
+DBIx::Class::Events
+  Wish to come up with good sample program for a
+  future presentaion for a Madison Perl Mongers' Meeting
+
+Notes so far wed-8-May-2019
+
+as superuser
+   Need internet connection
+   $ cpanm --look DBIx::Class
+   cd examples/Schema
+   tar -cvf /tmp/stuff.tar db *.pl MyApp
+exit
+
+As developer user
+   In you development directory
+   $ mkdir dbicapp
+   $ tar /tmp/stuff.tar
+   $ rm db/example.db
+   $ sqlite3 db/example.db < db/example.sql
+   $ perl insertdb.pl
+   $ perl testdb.pl
+   $ cd ..
+   $ cd -r dbicapp DCE
+   $ cd DCE
+
+Now lets start DBIx::Class::Events
+
+   From pod DBIx::Class::Events
+
+   Database Changes
+
+      Alter artist Table
+      $ sqlite3 db/example.db < db/AlterArtist.sql
+
+      Create artist_event Table
+      $ sqlite3 db/example.db < db/artistevent.sql
+
+   Schema Changes
+
+      $ cd MyApp/Schema/Result
+      $ vi Artist.pm
+
+         Use the example at https://metacpan.org/pod/DBIx::Class::Events#Tracked-Table
+
+         Add Columns to list
+---
+  last_name_change_id => {
+    data_type => 'integer',
+  },
+  previousid => {
+    data_type => 'integer',
+  },
+---
+
+
+        Place at the bottom of file
+
+---
+__PACKAGE__->load_components( qw/ Events / );
+
+# A different name can be used with the "events_relationship" attribute
+__PACKAGE__->has_many(
+    'events' => ( 'MyApp::Schema::Result::ArtistEvent', 'artistid' ),
+    { cascade_delete => 0 },
+);
+
+__PACKAGE__->events_relationship('events');
+
+__PACKAGE__->has_one(
+    'last_name_change'        => 'MyApp::Schema::Result::ArtistEvent',
+    { 'foreign.artisteventid' => 'self.last_name_change_id' },
+    { cascade_delete          => 0 },
+);
+
+sub change_name {
+    my ( $self, $new_name ) = @_;
+    my $event = $self->event( name_change =>
+            { details => { new => $new_name, old => $self->name } } );
+    $self->last_name_change( $event );
+    # $self->update; # be lazy and make our caller call ->update
+    $self->name( $new_name );
+}
+---
+
+
+      $ vi Artist.pm
+      $ vi ArtistEvent.pm
+          Located at https://metacpan.org/pod/DBIx::Class::Events#Tracking-Table
+
+      Create sample program located at https://metacpan.org/pod/DBIx::Class::Events#SYNOPSIS
+      $ vi dce.pl
+
+      $ perl dce.pl
+
