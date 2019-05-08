@@ -89,6 +89,7 @@ sub change_name {
           Located at https://metacpan.org/pod/DBIx::Class::Events#Tracking-Table
 
       Create sample program located at https://metacpan.org/pod/DBIx::Class::Events#SYNOPSIS
+      $ cd ../../..
       $ vi dce.pl
 
       $ perl dce.pl
