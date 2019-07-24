@@ -39,8 +39,13 @@ $artist->delete;    # and then they break up.
 # We can find out now when they broke up, if we remember their id.
 my $deleted_on
     = $schema->resultset('ArtistEvent')
-    ->single( { artistid => $artist->id, event => 'delete' } )
-    ->triggered_on;
+    ->search( { artistid => $artist->id, event => 'delete' },
+              { order_by => { -desc => 'triggered_on'},     },
+            )->first->triggered_on;
+#my $deleted_on
+#    = $schema->resultset('ArtistEvent')
+#    ->single( { artistid => $artist->id, event => 'delete' } )
+#    ->triggered_on;
 
 # Find the state of the band was just before the breakup.
 my $state_before_breakup
